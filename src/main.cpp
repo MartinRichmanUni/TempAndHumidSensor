@@ -18,18 +18,22 @@ enum LEDState
 };
 
 LEDState ledColour;
-const int specifiedDelay = 500;
+const int lightDelay = 500;
+const int debugDelay = 5000;
+const int minTemp = 17;
+const int maxTemp = 22;
+const int minHumid = 30;
+const int maxHumid = 70;
 unsigned long lastChangeTime;
 
 boolean timeDiff(unsigned long start, int specifiedDelay)
 {
-  return (millis() - start >= specifiedDelay);
+  return (millis() - start >= lightDelay);
 }
 
 void greenLight()
 {
-
-  if (timeDiff(lastChangeTime, specifiedDelay))
+  if (timeDiff(lastChangeTime, lightDelay))
   {
     analogWrite(PIN_RED, 0);
     analogWrite(PIN_GREEN, 200);
@@ -40,7 +44,7 @@ void greenLight()
 
 void redLight()
 {
-  if (timeDiff(lastChangeTime, specifiedDelay))
+  if (timeDiff(lastChangeTime, lightDelay))
   {
     analogWrite(PIN_RED, 200);
     analogWrite(PIN_GREEN, 0);
@@ -51,7 +55,7 @@ void redLight()
 
 void blueLight()
 {
-  if (timeDiff(lastChangeTime, specifiedDelay))
+  if (timeDiff(lastChangeTime, lightDelay))
   {
     analogWrite(PIN_RED, 0);
     analogWrite(PIN_GREEN, 0);
@@ -62,9 +66,8 @@ void blueLight()
 
 void setup()
 {
-  // put your setup code here, to run once:
   Serial.begin(9600);
-  ledColour = GREEN;
+  greenLight();
   pinMode(PIN_RED, OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE, OUTPUT);
@@ -77,36 +80,34 @@ void loop()
   int t = (int)dht.readTemperature();
   int h = (int)dht.readHumidity();
 
-  Serial.println(t);
-
   switch (ledColour)
   {
   case GREEN:
-    if (h > 70 || h < 30)
+    if (h > maxHumid || h < minHumid)
     {
       blueLight();
     }
-    else if (t > 22 || t < 20)
+    else if (t > maxTemp || t < minTemp)
     {
       redLight();
     }
     break;
   case BLUE:
-    if (h < 70 && h > 30)
+    if (h < maxHumid && h > minHumid)
     {
       greenLight();
     }
-    else if (t > 22 || t < 20)
+    else if (t > maxTemp || t < minTemp)
     {
       redLight();
     }
     break;
   case RED:
-    if (t < 22 && t > 20)
+    if (t < maxTemp && t > minTemp)
     {
       greenLight();
     }
-    else if (h > 70 || h < 30)
+    else if (h > maxHumid || h < minHumid)
     {
       blueLight();
     }
