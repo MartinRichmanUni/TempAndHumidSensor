@@ -271,6 +271,5 @@ void loop()
   debugHumid();
   debugTemp();
   displayValues();
-  rangeCheckEncoder();
   changeValues();
 }
