@@ -1,14 +1,20 @@
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
+#include <ESP32Encoder.h>
 #include "DHT.h"
 
 #define PIN_RED 12
 #define PIN_GREEN 14
 #define PIN_BLUE 13
 
+#define ROTARY_A 19
+#define ROTARY_B 18
+
 #define DHTPIN 27
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
+
+#define BUTTON_PIN 15
 
 enum LEDState
 {
@@ -17,15 +23,28 @@ enum LEDState
   BLUE
 };
 
+enum ChangeState
+{
+  MINTEMP,
+  MAXTEMP,
+  MINHUMID,
+  MAXHUMID
+};
+
 LEDState ledColour;
+ChangeState changeState;
+ESP32Encoder encoder;
+
+const int bounce_delay = 500;
 const int lightDelay = 500;
 const int debugDelay = 5000;
-const int minTemp = 15;
-const int maxTemp = 22;
-const int minHumid = 30;
-const int maxHumid = 80;
+int minTemp = 15;
+int maxTemp = 22;
+int minHumid = 30;
+int maxHumid = 80;
 unsigned long lastChangeTime;
 unsigned long lastDebug;
+unsigned long lastbtnPress;
 String tempStatus;
 String humidStatus;
 int temp;
@@ -120,16 +139,38 @@ void displayValues()
   }
 }
 
+// Incomplete for changing states with button and rotary encoder
+void changeValues()
+{
+  switch (changeState)
+  {
+  case MINTEMP:
+    // if button pressed, change state and print
+    // else check encoder value has changed
+    break;
+  case MAXTEMP:
+    break;
+  case MINHUMID:
+    break;
+  case MAXHUMID:
+    break;
+  }
+}
+
 void setup()
 {
   Serial.begin(9600);
   pinMode(PIN_RED, OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT);
   dht.begin();
   greenLight();
   lastChangeTime = 0;
   lastDebug = 0;
+  ESP32Encoder::useInternalWeakPullResistors = UP;
+  encoder.attachHalfQuad(ROTARY_A, ROTARY_B);
+  encoder.setCount(20);
 }
 
 void loop()
@@ -152,7 +193,7 @@ void loop()
     }
     break;
   case BLUE:
-    if (humid < maxHumid && humid > minHumid)
+    if (humid <= maxHumid && humid >= minHumid)
     {
       greenLight();
     }
@@ -162,7 +203,7 @@ void loop()
     }
     break;
   case RED:
-    if (temp < maxTemp && temp > minTemp)
+    if (temp <= maxTemp && temp >= minTemp)
     {
       greenLight();
     }
@@ -181,4 +222,15 @@ void loop()
   debugHumid();
   debugTemp();
   displayValues();
+
+  // Debouncing for testing purposes only
+  if (digitalRead(BUTTON_PIN) == HIGH)
+  {
+
+    if (timeDiff(lastbtnPress, bounce_delay))
+    {
+      lastbtnPress = millis();
+      Serial.println(lastbtnPress);
+    }
+  }
 }
