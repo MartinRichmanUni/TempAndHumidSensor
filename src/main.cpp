@@ -25,6 +25,7 @@ enum LEDState
 
 enum ChangeState
 {
+  DEF,
   MINTEMP,
   MAXTEMP,
   MINHUMID,
@@ -146,13 +147,60 @@ void changeValues()
   {
   case MINTEMP:
     // if button pressed, change state and print
+    if (digitalRead(BUTTON_PIN) == HIGH)
+    {
+      if (timeDiff(lastbtnPress, bounce_delay))
+      {
+        lastbtnPress = millis();
+        changeState = MAXTEMP;
+        Serial.println("Set the maximum temperature");
+      }
+    }
     // else check encoder value has changed
     break;
   case MAXTEMP:
+    if (digitalRead(BUTTON_PIN) == HIGH)
+    {
+      if (timeDiff(lastbtnPress, bounce_delay))
+      {
+        lastbtnPress = millis();
+        changeState = MINHUMID;
+        Serial.println("Set the maximum temperature");
+      }
+    }
     break;
   case MINHUMID:
+    if (digitalRead(BUTTON_PIN) == HIGH)
+    {
+      if (timeDiff(lastbtnPress, bounce_delay))
+      {
+        lastbtnPress = millis();
+        changeState = MAXHUMID;
+        Serial.println("Set the minimum humidity");
+      }
+    }
     break;
   case MAXHUMID:
+    if (digitalRead(BUTTON_PIN) == HIGH)
+    {
+      if (timeDiff(lastbtnPress, bounce_delay))
+      {
+        lastbtnPress = millis();
+        changeState = MINTEMP;
+        Serial.println("Set the maximum humidity");
+      }
+    }
+    break;
+  case DEF:
+    if (digitalRead(BUTTON_PIN) == HIGH)
+    {
+      if (timeDiff(lastbtnPress, bounce_delay))
+      {
+        lastbtnPress = millis();
+        changeState = MINTEMP;
+        Serial.println("Set the minimum temperature");
+      }
+    }
     break;
   }
 }
@@ -171,6 +219,7 @@ void setup()
   ESP32Encoder::useInternalWeakPullResistors = UP;
   encoder.attachHalfQuad(ROTARY_A, ROTARY_B);
   encoder.setCount(20);
+  changeState = DEF;
 }
 
 void loop()
@@ -222,15 +271,6 @@ void loop()
   debugHumid();
   debugTemp();
   displayValues();
-
-  // Debouncing for testing purposes only
-  if (digitalRead(BUTTON_PIN) == HIGH)
-  {
-
-    if (timeDiff(lastbtnPress, bounce_delay))
-    {
-      lastbtnPress = millis();
-      Serial.println(lastbtnPress);
-    }
-  }
+  rangeCheckEncoder();
+  changeValues();
 }
