@@ -39,6 +39,10 @@ ESP32Encoder encoder;
 const int bounce_delay = 500;
 const int lightDelay = 500;
 const int debugDelay = 5000;
+const int templimitLow = 5;
+const int templimitHigh = 30;
+const int humidlimitLow = 0;
+const int humidlimitHigh = 100;
 int minTemp = 15;
 int maxTemp = 22;
 int minHumid = 30;
@@ -153,10 +157,28 @@ void changeValues()
       {
         lastbtnPress = millis();
         changeState = MAXTEMP;
+        encoder.setCount(maxTemp);
         Serial.println("Set the maximum temperature");
+        Serial.println(maxTemp);
       }
     }
-    // else check encoder value has changed
+    else if (minTemp != encoder.getCount())
+    {
+      minTemp = encoder.getCount();
+
+      if (minTemp >= templimitHigh)
+      {
+        minTemp = templimitHigh;
+        encoder.setCount(minTemp);
+      }
+      else if (minTemp <= templimitLow)
+      {
+        minTemp = templimitLow;
+        encoder.setCount(minTemp);
+      }
+
+      Serial.println(minTemp);
+    }
     break;
   case MAXTEMP:
     if (digitalRead(BUTTON_PIN) == HIGH)
@@ -165,8 +187,27 @@ void changeValues()
       {
         lastbtnPress = millis();
         changeState = MINHUMID;
-        Serial.println("Set the maximum temperature");
+        encoder.setCount(minHumid);
+        Serial.println("Set the minimum humidity");
+        Serial.println(minHumid);
       }
+    }
+    else if (maxTemp != encoder.getCount())
+    {
+      maxTemp = encoder.getCount();
+
+      if (maxTemp >= templimitHigh)
+      {
+        maxTemp = templimitHigh;
+        encoder.setCount(maxTemp);
+      }
+      else if (maxTemp <= minTemp)
+      {
+        maxTemp = minTemp;
+        encoder.setCount(maxTemp);
+      }
+
+      Serial.println(maxTemp);
     }
     break;
   case MINHUMID:
@@ -176,8 +217,27 @@ void changeValues()
       {
         lastbtnPress = millis();
         changeState = MAXHUMID;
-        Serial.println("Set the minimum humidity");
+        encoder.setCount(maxHumid);
+        Serial.println("Set the maximum humidity");
+        Serial.println(maxHumid);
       }
+    }
+    else if (minHumid != encoder.getCount())
+    {
+      minHumid = encoder.getCount();
+
+      if (minHumid >= humidlimitHigh)
+      {
+        minHumid = humidlimitHigh;
+        encoder.setCount(minHumid);
+      }
+      else if (minHumid <= humidlimitLow)
+      {
+        minHumid = humidlimitLow;
+        encoder.setCount(minHumid);
+      }
+
+      Serial.println(minHumid);
     }
     break;
   case MAXHUMID:
@@ -187,8 +247,27 @@ void changeValues()
       {
         lastbtnPress = millis();
         changeState = MINTEMP;
-        Serial.println("Set the maximum humidity");
+        encoder.setCount(minTemp);
+        Serial.println("Set the minimum temperature");
+        Serial.println(minTemp);
       }
+    }
+    else if (maxHumid != encoder.getCount())
+    {
+      maxHumid = encoder.getCount();
+
+      if (maxHumid >= humidlimitHigh)
+      {
+        maxHumid = humidlimitHigh;
+        encoder.setCount(maxHumid);
+      }
+      else if (maxHumid <= minHumid)
+      {
+        maxHumid = minHumid;
+        encoder.setCount(maxHumid);
+      }
+
+      Serial.println(maxHumid);
     }
     break;
   case DEF:
@@ -198,7 +277,9 @@ void changeValues()
       {
         lastbtnPress = millis();
         changeState = MINTEMP;
+        encoder.setCount(minTemp);
         Serial.println("Set the minimum temperature");
+        Serial.println(minTemp);
       }
     }
     break;

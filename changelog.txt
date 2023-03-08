@@ -1,0 +1,31 @@
+New -
+
+Delta3: Implemented encoder to set values
+    - Added rotary encoder feature within switch case to allow user set values for min, max temperature and humidity
+    - Feature added to ensure encoder count is set to the switched state. E.g State MINTEMP has the count set to the minTemp variable.
+
+Previous -
+
+Delta2: Minor bug fix
+    - Method was called which didn't exist, causing errors when uploading. 
+    - Removed unused method calling
+
+Delta2: State Switching With Button press
+    - Added switch case which provided method to switch between the button states
+    - Included comments for further work required for changeValues() method
+
+Delta: Debouncing of button setup
+    - Added method for testing implementation of bouncing on button press
+    - Only used for foundation to help implement methods further in development
+
+Bravo2: Debugging values completed
+    - Added debugging method for displaying temperature and humidity values on the serial port
+    - Additionally, serial monitor displays whether values are within specified range
+
+Bravo1. Code cleanup with variables added
+    - Removed hard coded values for loop() and replaced with variables
+    - Variables added for min, max temperature and humidity for use in future features
+
+Bravo1. LED lightup and Sensor Data readings added
+    - Implemented sensor readings 
+    - Implemented displaying colour in LED based on readings gathered
